@@ -69,6 +69,11 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
     private DateFormatter.Formatter dateHeadersFormatter;
     private SparseArray<OnMessageViewClickListener> viewClickListenersArray = new SparseArray<>();
 
+
+    private boolean timeIntervalIsLessThanTwoMinutes(Date d1, Date d2) {
+        return Math.abs(d1.getTime() - d2.getTime()) < 120000;
+    }
+
     /**
      * For default list item layout and view holder.
      *
@@ -175,7 +180,7 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
         if (!items.isEmpty()) {
             int lastItemPosition = items.size() - 1;
             Date lastItem = (Date) items.get(lastItemPosition).item;
-            if (DateFormatter.isSameDay(messages.get(0).getCreatedAt(), lastItem)) {
+            if (timeIntervalIsLessThanTwoMinutes(messages.get(0).getCreatedAt(), lastItem)) {
                 items.remove(lastItemPosition);
                 notifyItemRemoved(lastItemPosition);
             }
@@ -534,7 +539,7 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
             this.items.add(new Wrapper<>(message));
             if (messages.size() > i + 1) {
                 MESSAGE nextMessage = messages.get(i + 1);
-                if (!DateFormatter.isSameDay(message.getCreatedAt(), nextMessage.getCreatedAt())) {
+                if (!timeIntervalIsLessThanTwoMinutes(message.getCreatedAt(), nextMessage.getCreatedAt())) {
                     this.items.add(new Wrapper<>(message.getCreatedAt()));
                 }
             } else {
@@ -562,7 +567,7 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
         if (items.size() <= position) return false;
         if (items.get(position).item instanceof IMessage) {
             Date previousPositionDate = ((MESSAGE) items.get(position).item).getCreatedAt();
-            return DateFormatter.isSameDay(dateToCompare, previousPositionDate);
+            return timeIntervalIsLessThanTwoMinutes(dateToCompare, previousPositionDate);
         } else return false;
     }
 
