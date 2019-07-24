@@ -125,6 +125,15 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
         return holders.getViewType(items.get(position).item, senderId);
     }
 
+    public String getAuthorId(int position) {
+        if (items.get(position).item instanceof IMessage) {
+            IMessage message =  (IMessage)items.get(position).item;
+            return message.getUser().getId();
+        }
+
+        return null;
+    }
+
     @Override
     public void onLoadMore(int page, int total) {
         if (loadMoreListener != null) {
