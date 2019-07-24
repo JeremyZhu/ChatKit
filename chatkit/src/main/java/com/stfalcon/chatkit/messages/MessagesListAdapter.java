@@ -134,6 +134,16 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
         return null;
     }
 
+    public IMessage getItemMessage(int position) {
+        if (0 <= position &&
+                position < items.size() &&
+                items.get(position).item instanceof IMessage) {
+            return (IMessage)items.get(position).item;
+        }
+
+        return null;
+    }
+
     @Override
     public void onLoadMore(int page, int total) {
         if (loadMoreListener != null) {
