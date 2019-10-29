@@ -49,6 +49,8 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
         extends RecyclerView.Adapter<ViewHolder>
         implements RecyclerScrollMoreListener.OnLoadMoreListener {
 
+    public static String HEADER_ID = "message list header";
+
     protected static boolean isSelectionModeEnabled;
 
     protected List<Wrapper> items;
@@ -198,10 +200,12 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
 
         if (!items.isEmpty()) {
             int lastItemPosition = items.size() - 1;
-            Date lastItem = (Date) items.get(lastItemPosition).item;
-            if (timeIntervalIsLessThanTwoMinutes(messages.get(0).getCreatedAt(), lastItem)) {
-                items.remove(lastItemPosition);
-                notifyItemRemoved(lastItemPosition);
+            if (items.get(lastItemPosition).item instanceof Date) {
+                Date lastItem = (Date) items.get(lastItemPosition).item;
+                if (timeIntervalIsLessThanTwoMinutes(messages.get(0).getCreatedAt(), lastItem)) {
+                    items.remove(lastItemPosition);
+                    notifyItemRemoved(lastItemPosition);
+                }
             }
         }
 
@@ -288,6 +292,18 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
      * @param message message to delete.
      */
     public void delete(MESSAGE message) {
+        Date date0 = new Date(0);
+        if (message.getCreatedAt().equals(date0)) {
+            int position = getMessagePositionById(HEADER_ID);
+            if (position > 0) {
+                int previousItemPosition = position - 1;
+                if (items.get(previousItemPosition).item instanceof Date) {
+                    items.remove(previousItemPosition);
+                    notifyItemRemoved(previousItemPosition);
+                }
+            }
+        }
+
         deleteById(message.getId());
     }
 
@@ -553,6 +569,7 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
     }
 
     protected void generateDateHeaders(List<MESSAGE> messages) {
+        Date date0 = new Date(0);
         for (int i = 0; i < messages.size(); i++) {
             MESSAGE message = messages.get(i);
             this.items.add(new Wrapper<>(message));
@@ -561,7 +578,7 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
                 if (!timeIntervalIsLessThanTwoMinutes(message.getCreatedAt(), nextMessage.getCreatedAt())) {
                     this.items.add(new Wrapper<>(message.getCreatedAt()));
                 }
-            } else {
+            } else if (!message.getCreatedAt().equals(date0)) {
                 this.items.add(new Wrapper<>(message.getCreatedAt()));
             }
         }
